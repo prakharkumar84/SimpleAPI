@@ -1,0 +1,1121 @@
+# Infor LN & ION - Training Exam & Exercises
+
+---
+
+## Section 1: DA Workflows vs Non-DA Workflows (Questions)
+
+### Multiple Choice Questions
+
+**Q1.** What does "DA" stand for in ION DA Workflows?
+- A) Data Authorization
+- B) Document Authorization
+- C) Direct Approval
+- D) Data Activation
+
+**Answer:** B) Document Authorization
+
+---
+
+**Q2.** What is the key difference between a DA workflow and a non-DA workflow?
+- A) DA workflows are faster
+- B) DA workflows block data changes until approved; non-DA workflows do not block data
+- C) Non-DA workflows cannot send notifications
+- D) DA workflows don't use BODs
+
+**Answer:** B) DA workflows block data changes until approved; non-DA workflows do not block data
+
+---
+
+**Q3.** Which LN mechanism is used by DA workflows to hold data in a pending state?
+- A) BOD Publishing
+- B) Activation Policy
+- C) DBCM (Database Change Management) - Check-out/Check-in
+- D) Event Monitor
+
+**Answer:** C) DBCM (Database Change Management) - Check-out/Check-in
+
+---
+
+**Q4.** When a DA workflow rejects a change, what happens to the data in LN?
+- A) Data is deleted permanently
+- B) Data is saved with a "rejected" status
+- C) The checked-out version is discarded and original data remains unchanged
+- D) Data is moved to an archive table
+
+**Answer:** C) The checked-out version is discarded and original data remains unchanged
+
+---
+
+**Q5.** Which of the following is NOT a valid trigger for a non-DA workflow?
+- A) Activation Policy (Sync BOD)
+- B) ProcessWorkflow BOD from application
+- C) User editing a controlled Business Object in LN
+- D) Event Monitor alert
+
+**Answer:** C) User editing a controlled Business Object in LN (this triggers DA workflows)
+
+---
+
+**Q6.** What are the common object types used in DA workflows in LN?
+- A) TDSO (Sales Order), TDPO (Purchase Order), TDREQ (Requisition)
+- B) WHSO (Warehouse), MFPO (Manufacturing)
+- C) GLJO (Journal), APVO (Voucher)
+- D) All of the above
+
+**Answer:** A) TDSO (Sales Order), TDPO (Purchase Order), TDREQ (Requisition)
+
+---
+
+**Q7.** To set up a DA workflow in LN, the correct sequence is:
+- A) Activate workflow → Create model → Generate deployment
+- B) Create model → Validate model → Generate deployment → Activate workflow → Activate deployment
+- C) Create deployment → Create model → Activate
+- D) Create workflow in ION → Activate in LN
+
+**Answer:** B) Create model → Validate model → Generate deployment → Activate workflow → Activate deployment
+
+---
+
+**Q8.** For DA workflows, the standard workflow templates in ION are named:
+- A) LN_STANDARD_xxxx
+- B) LN_DA_xxxx
+- C) ION_DA_xxxx
+- D) WORKFLOW_DA_xxxx
+
+**Answer:** B) LN_DA_xxxx
+
+---
+
+**Q9.** In a non-DA workflow started by an Activation Policy, what does ION send back to LN when the workflow completes?
+- A) An Acknowledge.Workflow BOD
+- B) A Process BOD for the same Noun with output parameters
+- C) A Sync BOD
+- D) Nothing is sent back
+
+**Answer:** B) A Process BOD for the same Noun with output parameters
+
+---
+
+**Q10.** Which setup is required in LN for DA workflows but NOT for non-DA workflows?
+- A) BOD publishing
+- B) Connection Point configuration
+- C) DBCM authorization rules on specific tables/sessions
+- D) Activation policy in ION
+
+**Answer:** C) DBCM authorization rules on specific tables/sessions
+
+---
+
+### True/False Questions
+
+**Q11.** True or False: In a DA workflow, changes made by the user are immediately visible to other users before approval.
+
+**Answer:** False — Changes are held in a checked-out version and only become effective after approval/check-in.
+
+---
+
+**Q12.** True or False: A non-DA workflow can be started manually by a user in Infor OS Portal.
+
+**Answer:** True
+
+---
+
+**Q13.** True or False: DA workflows require duplicating standard LN_DA_xxxx workflows in ION before use.
+
+**Answer:** True — You duplicate the standard workflow templates and customize them.
+
+---
+
+**Q14.** True or False: Non-DA workflows can only be triggered by Activation Policies.
+
+**Answer:** False — They can be triggered by Activation Policies, ProcessWorkflow BODs, Data Flow activities, Event Monitors, API calls, other workflows, or manually.
+
+---
+
+**Q15.** True or False: Both DA and non-DA workflows use ION Desk for workflow modeling.
+
+**Answer:** True
+
+---
+
+
+---
+
+## Section 2: Infor OS API Exercises
+
+### Exercise 2.1: Understanding API Basics
+
+**Q1.** What does API stand for and what is its primary purpose?
+
+**Answer:** Application Programming Interface — enables point-to-point communication between systems, relying on data transfer to communicate.
+
+---
+
+**Q2.** Describe the full lifecycle of an API request:
+
+**Answer:**
+1. Request is sent
+2. Internal validations on client side (check datatypes, request structure)
+3. Request travels to API server
+4. Server validations (authorization, valid request format, method type, data type)
+5. Custom server validations (checking values, inputs, mandatory fields)
+6. Actual API code triggers
+7. Response generated by server
+8. Response validation on server
+9. Response sent back to client
+10. Client-side response validations trigger
+11. Client code after receiving response executes
+
+---
+
+**Q3.** Match the HTTP methods to their correct use:
+
+| Method | Use |
+|--------|-----|
+| GET | Fetch data (no body) |
+| POST | Send something, get something (has body) |
+| PATCH/PUT | Update something |
+| DELETE | Delete data |
+
+---
+
+**Q4.** What is the difference between PUT and PATCH?
+- PUT: Replaces the entire resource (all fields required)
+- PATCH: Partial update (only send fields you want to change)
+
+---
+
+**Q5.** Explain the difference between these Content-Type headers:
+- `application/json` — JSON request body
+- `application/xml` — XML request body
+- `application/x-www-form-urlencoded` — Form data (key=value pairs)
+- `application/octet-stream` — Binary data (files)
+- `application/text` — Plain text
+
+---
+
+**Q6.** What is the `Accept` header used for?
+
+**Answer:** It tells the API server what response format the client expects (e.g., `application/json`, `application/xml`).
+
+---
+
+### Exercise 2.2: HTTP Status Codes
+
+**Q7.** Categorize these status codes:
+
+| Code | Category | Meaning | Action |
+|------|----------|---------|--------|
+| 200 | Success | OK | — |
+| 201 | Success | Created | — |
+| 400 | Client Error | Bad Request | Fix request (datatype errors, special characters) |
+| 401 | Client Error | Unauthorized | Fix auth setup or credentials |
+| 403 | Client Error | Forbidden | Not allowed / internal validation failed |
+| 404 | Client Error | Not Found | Check endpoint URL path |
+| 405 | Client Error | Method Not Allowed | Wrong HTTP method |
+| 415 | Client Error | Unsupported Media | Wrong Content-Type |
+| 422 | Client Error | Unprocessable Entity | Server validation failed |
+| 429 | Client Error | Too Many Requests | Rate limited |
+| 500 | Server Error | Internal Server Error | Server-side issue |
+| 502 | Server Error | Bad Gateway | Proxy/gateway issue |
+| 503 | Server Error | Service Unavailable | Server down |
+| 504 | Server Error | Gateway Timeout | Server took too long |
+
+---
+
+**Q8.** You receive a 400 error and your request body contains `{"Customer Name": "Test & Co"}`. What is likely wrong and how do you fix it?
+
+**Answer:** Special character `&` needs to be escaped. Fix: `{"Customer Name": "Test &amp; Co"}`. Special characters like `&`, `!`, `#`, `$`, `%`, `^`, `*` should be escaped with their ASCII/HTML entity values.
+
+---
+
+### Exercise 2.3: Infor API Authentication (OAuth 2.0)
+
+**Q9.** All Infor standard APIs use which authorization type?
+
+**Answer:** OAuth 2.0 — using a `.ionapi` file of type Backend Service.
+
+---
+
+**Q10.** From an `.ionapi` file, identify what each field represents:
+
+| Field | Purpose |
+|-------|---------|
+| `ti` | Tenant ID |
+| `cn` | Authorized App Name |
+| `ci` | Client ID |
+| `cs` | Client Secret |
+| `iu` | ION API Mingle Base URL |
+| `pu` + `ot` | Token URL |
+| `pu` + `or` | Token Revoke URL |
+| `saak` | Username |
+| `sask` | Password |
+
+---
+
+**Q11.** How do you pass the OAuth 2.0 token in an API call?
+
+**Answer:** In the headers as: `"Authorization": "Bearer {access_token}"`
+
+---
+
+**Q12.** Write the steps to get OAuth 2.0 authentication for Infor APIs:
+1. Create an Authorized App on API Gateway of type Backend Service
+2. Download credentials using a service account
+3. A `.ionapi` file will be downloaded
+4. Use `ci` (client ID) and `cs` (client secret) to request a token from the token URL (`pu` + `ot`)
+5. Use the returned access token in the `Authorization: Bearer` header
+
+---
+
+### Exercise 2.4: cURL Commands
+
+**Q13.** Read and explain this cURL command:
+
+```
+curl -X 'GET' \
+  'https://mingle-ionapi.inforcloudsuite.com/TENANT/ifsservice/usermgt/v2/users/me' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer eyJraWQ...'
+```
+
+**Answer:**
+- `curl` — command-line tool for API calls
+- `-X 'GET'` — HTTP method is GET
+- URL — the API endpoint (user management service, getting current user info)
+- `-H 'accept: application/json'` — expects JSON response
+- `-H 'Authorization: Bearer ...'` — OAuth 2.0 bearer token for authentication
+
+---
+
+**Q14.** Write a cURL command to POST a JSON body to create a sales order:
+
+**Answer:**
+```
+curl -X 'POST' \
+  'https://mingle-ionapi.inforcloudsuite.com/TENANT/api/salesorder' \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json' \
+  -H 'Authorization: Bearer {access_token}' \
+  -d '{"orderNumber": "SO001", "customer": "CUST001", "amount": 1500.00}'
+```
+
+---
+
+### Exercise 2.5: API Setup for New Integration
+
+**Q15.** A customer wants to integrate with PayPal APIs. List everything you need from them:
+
+**Answer:**
+1. Endpoint URL (API URL)
+2. Certificate (if needed) + EC if needed (for locally hosted APIs)
+3. API Authorization details (API key, OAuth1, OAuth2, Basic, Token)
+4. HTTP Method (GET, POST, DELETE, PUT, PATCH)
+5. Request type (XML, JSON, PDF, text) + sample request
+6. Response type (XML, JSON) + sample response
+
+**What you need to provide them:**
+- Infor Host IP address for whitelisting (security)
+- They must whitelist your server IP so you can call their API
+
+---
+
+**Q16.** You are setting up a new API in Infor OS API Gateway. List all configuration steps:
+
+**Answer:**
+1. Get endpoint URL
+2. Set authentication type and all auth details
+3. Define request type (JSON, XML, form data, text, file, binary) + sample request
+4. Define response type + sample response
+5. Create a Swagger specification based on above 4 details
+6. Add certificate if required
+7. If API is on a local secure server, install and enable EC (Enterprise Connector) in API suite
+8. If certificate not provided and you get certificate errors, enable "Ignore Certificates" slider in API suite
+9. Configure API method type
+10. Set request and response codes
+11. Configure internal validations if any
+12. Configure server validations if any
+
+---
+
+### Exercise 2.6: Endpoint Policies
+
+**Q17.** What are Endpoint Policies used for in Infor OS?
+
+**Answer:**
+- Add policies or internal validations just before request is made to the API server
+- Used for data transformation (XML→XML, XML→JSON, JSON→XML, JSON→JSON)
+- Add policies or validations when response is returned
+
+---
+
+### Exercise 2.7: LN OData REST APIs
+
+**Q18.** List the steps to create and test a custom OData REST API in LN:
+
+**Answer:**
+1. Ensure user has access to REST API Management
+2. Activate Modeler API for company 0000 in REST API Management Service session
+3. Create new custom API in REST OData APIs session (in `tx` package)
+4. Select activity
+5. Set runtime context
+6. Check Out
+7. Complete development
+8. Check-in and Commit
+9. Go to API Gateway and test using "Try Out" option
+10. Use the response to build transformation code if needed
+
+---
+
+**Q19.** Where can you test Infor standard APIs? (List all methods)
+
+**Answer:**
+1. Within API Gateway using the "Try Out" option
+2. Postman
+3. Through code (programmatic)
+4. ION (data flows)
+
+---
+
+
+---
+
+## Section 3: Workflow Exercises (All Activation Types)
+
+### Exercise 3.1: Workflow via Activation Policy
+
+**Scenario:** Create a workflow that triggers when a new Purchase Order is published from LN and sends a notification to the procurement manager.
+
+**Steps:**
+1. Create a workflow in ION Desk
+2. Create all required parameters in the Start node
+3. Activate the workflow
+4. Create an Activation Policy in ION
+5. Select the incoming BOD/Document (e.g., Sync.PurchaseOrder)
+6. Select the activated workflow in the Activation Policy
+7. Map all mandatory input attributes from the BOD to workflow parameters
+8. Activate the Activation Policy
+9. Ensure the selected BOD/Document is published from LN
+
+**Questions:**
+
+**Q20.** What type of BOD does an Activation Policy monitor?
+- A) Process BOD
+- B) Sync BOD
+- C) Load BOD
+- D) Acknowledge BOD
+
+**Answer:** B) Sync BOD
+
+---
+
+**Q21.** If a new instance of the same document is received while a workflow instance is still running, what happens by default?
+
+**Answer:** By default, no new workflow instance is started. Optionally, you can configure it to cancel the running instance and start a new one based on the latest document data.
+
+---
+
+**Q22.** When a workflow started by an Activation Policy completes, what message is sent back?
+
+**Answer:** A Process message for the same Noun as the incoming Sync message, containing the workflow output parameters.
+
+---
+
+### Exercise 3.2: Workflow via Data Flow
+
+**Scenario:** A file arrives on an SFTP server containing order data. Trigger a workflow to process and validate this data.
+
+**Steps:**
+1. Create a workflow in ION Desk
+2. Create all required parameters in the Start node
+3. Activate the workflow
+4. Create a Data Flow in ION
+5. Choose the first trigger activity (File Connection Point)
+6. Drag and drop the Workflow activity into the data flow
+7. Map all workflow parameters from the document to workflow inputs
+8. Activate the Data Flow
+9. Trigger the data flow (drop a file in the configured location)
+
+**Questions:**
+
+**Q23.** In a data flow with a workflow activity, what happens to the workflow output?
+
+**Answer:** The output of the workflow is added to the document and the data flow continues. If there is no next activity in the flow, the workflow output is ignored.
+
+---
+
+**Q24.** What types of Connection Points can trigger a data flow? (List all)
+
+**Answer:** LN Company, File CP, Database CP, IMS CP, API (GET call), Data Lake Retrieve
+
+---
+
+### Exercise 3.3: Workflow via OCM in LN (DA Workflow)
+
+**Scenario:** Implement document authorization for Sales Orders so that orders above $10,000 require manager approval.
+
+**Steps (all in LN unless noted):**
+1. Create a model in LN
+2. Add extra mapping if required based on object types
+3. Validate the model
+4. Generate deployment from the model
+5. Activate workflow for required companies in the Deployments session
+6. Give the correct workflow name (matching the ION workflow)
+7. Activate the deployment
+8. In ION: Duplicate the standard `LN_DA_TDSO` workflow
+9. In ION: Customize and activate the duplicated workflow
+10. In LN: Go to the company/session and send a Sales Order for approval
+
+**Questions:**
+
+**Q25.** What are the common OCM object types and their codes?
+
+| Code | Object Type |
+|------|-------------|
+| TDSO | Sales Order |
+| TDPO | Purchase Order |
+| TDREQ | Requisition |
+
+---
+
+**Q26.** Why do you duplicate standard LN_DA_xxxx workflows instead of modifying them directly?
+
+**Answer:** Standard workflows are delivered by Infor and may be overwritten during upgrades. Duplicating ensures your customizations are preserved.
+
+---
+
+### Exercise 3.4: Workflow via Alert (Event Monitor)
+
+**Scenario:** When an invoice with a value exceeding $50,000 is created, trigger a workflow for senior management review.
+
+**Steps:**
+1. Create an Event Monitor in ION
+2. Define the monitoring rule (e.g., invoice amount > 50000)
+3. Create a workflow in ION Desk
+4. Create all required parameters in the Start node
+5. Activate the workflow
+6. Under Workflow settings in the monitor, add the workflow name
+7. Map all required parameters from the BOD to workflow parameters
+8. Activate the Monitor
+9. Publish the BOD to trigger the monitor
+
+**Questions:**
+
+**Q27.** When a workflow is started from an alert, what happens to the workflow output?
+
+**Answer:** The workflow output is ignored.
+
+---
+
+**Q28.** What is the relationship between Monitors and Activation Policies?
+
+**Answer:** Both evaluate incoming BODs, but Monitors are for alerts/notifications/escalations while Activation Policies are specifically for starting workflow instances. Monitors can optionally start a workflow as one of their actions.
+
+---
+
+### Exercise 3.5: Workflow via IDM (Infor Document Management)
+
+**Scenario:** When a new contract document is uploaded to IDM under the "Contracts" document type, trigger an approval workflow.
+
+**Steps:**
+1. In IDM Control Center, under ION Configuration, select the document type (e.g., "Contracts")
+2. Add workflow configuration against it
+3. Create a workflow in ION Desk
+4. Create all required parameters in the Start node
+5. Activate the workflow
+6. Add workflow name and map all required parameters with IDM attributes
+7. Save the configuration
+8. Test: Attach a document to that particular document type in IDM
+
+---
+
+### Exercise 3.6: Workflow via API Gateway
+
+**Scenario:** Start a workflow programmatically using the ION API endpoint.
+
+**Steps:**
+1. Use the Infor ION Suite endpoint: `IONSERVICES/process/application`
+2. Provide the Company Logical ID
+3. Send a JSON request with all workflow details:
+   - Workflow definition name
+   - Input parameters
+4. Send the request
+
+**Questions:**
+
+**Q29.** What is the API endpoint used to start a workflow programmatically?
+
+**Answer:** `IONSERVICES/process/application`
+
+---
+
+**Q30.** List all 6 ways a workflow can be triggered in Infor ION:
+
+**Answer:**
+1. Activation Policy (incoming Sync BOD)
+2. Data Flow (workflow activity in a flow)
+3. OCM/DA in LN (Document Authorization)
+4. Event Monitor (alert)
+5. IDM (document upload)
+6. API Gateway (IONSERVICES/process/application endpoint)
+
+---
+
+### Exercise 3.7: Workflow Definition Structure
+
+**Q31.** What is a workflow definition?
+
+**Answer:** A sequential execution of a large number of activities. It is still sequential but you can introduce parallel processing (e.g., steps 1-5 solo, step 6 parallel, steps 7-10 solo).
+
+---
+
+**Q32.** List all predefined step types available in a workflow:
+
+**Answer:** Task, Task Chain, Notification, Decision Table, Set Parameter, API, Wait, Start Workflow, Script, Decision, Loop Back, Parallel, Subprocess, Infor Artificial Intelligence
+
+---
+
+
+---
+
+## Section 4: Dataflow Exercises
+
+### Dataflow Basics (Questions)
+
+**Q33.** What is the minimum requirement for a data flow?
+
+**Answer:** Each data flow must have at least 1 activity. If it's only a single activity, it must be a Connection Point (LN Company, IMS, DB, File, API).
+
+---
+
+**Q34.** What is the rule about documents between the last activity and the End node?
+
+**Answer:** There should NOT be any document selected between the last activity and the End node.
+
+---
+
+**Q35.** For a complete flow (not single activity), what is the minimum number of activities?
+
+**Answer:** Minimum 2 activities.
+
+---
+
+**Q36.** Explain how a data flow is triggered:
+
+**Answer:**
+1. A Connection Point is triggered (file arrives, BOD published, DB change, etc.)
+2. The triggered Connection Point checks for active data flows it participates in
+3. It then triggers the data flow
+4. Data flows work on a trigger basis
+
+---
+
+**Q37.** What are the valid first activities (data sources) in a data flow?
+
+**Answer:** Company CP, Database CP (GET), API Call (GET), Data Lake Retrieve, File Read
+
+---
+
+**Q38.** What are the valid last activities (data consumers) in a data flow?
+
+**Answer:** Company CP, Database CP (POST/INSERT), API Call (POST), Ingest Data Lake, File Write
+
+---
+
+### Dataflow Exercise 1: Database → File (GET)
+
+**Objective:** Read data from a database and write it to a file.
+
+**Setup Steps:**
+1. Create a Database Connection Point (configure DB host, port, credentials, stored procedure)
+2. Create a File Connection Point (configure file location, format)
+3. Add the document under Documents section
+4. Create a Data Flow:
+   - First activity: Database CP (GET/Read)
+   - Document: Selected document type
+   - Last activity: File CP (Write)
+5. Activate the data flow
+6. Trigger: Execute the stored procedure or schedule
+
+---
+
+### Dataflow Exercise 2: LN → File
+
+**Objective:** Export LN data (e.g., Sales Orders) to a file for external system consumption.
+
+**Setup Steps:**
+1. Ensure LN Company Connection Point is configured
+2. Create a File Connection Point (CSV/XML output location)
+3. Register the document (e.g., Sync.SalesOrder) under Documents
+4. Create a Data Flow:
+   - First activity: LN Company CP
+   - Document: Sync.SalesOrder
+   - Last activity: File CP (Write)
+5. Activate the data flow
+6. Trigger: Publish Sync.SalesOrder BOD from LN
+
+---
+
+### Dataflow Exercise 3: File → Mapping → LN
+
+**Objective:** Read a file from an external system, transform it using a mapping, and send to LN.
+
+**Setup Steps:**
+1. Create a File Connection Point (source file location, format)
+2. Ensure LN Company Connection Point is configured
+3. Register both source and target documents
+4. Create a Mapping (transform source format to LN BOD format)
+5. Create a Data Flow:
+   - First activity: File CP (Read)
+   - Document: Source document
+   - Mapping activity: Transform source → LN BOD format
+   - Document: Target BOD (e.g., Process.SalesOrder)
+   - Last activity: LN Company CP
+6. Activate the data flow
+7. Trigger: Drop a file in the configured source location
+
+---
+
+### Dataflow Exercise 4: Filter and Routing in Data Flow
+
+**Objective:** Route documents to different destinations based on content (e.g., route orders by region).
+
+**Setup Steps:**
+1. Create source Connection Point (LN Company or File)
+2. Create multiple destination Connection Points
+3. Create a Data Flow:
+   - First activity: Source CP
+   - Add filter conditions on the document (e.g., region = "EMEA" → CP1, region = "APAC" → CP2)
+   - Content-based routing rules
+   - Multiple last activities based on routing
+4. Activate the data flow
+5. Trigger: Source publishes documents
+
+---
+
+### Dataflow Exercise 5: File → API
+
+**Objective:** Read data from a file and send it to an external API.
+
+**Setup Steps:**
+1. Create a File Connection Point (source file)
+2. Create an API Connection Point (target API endpoint, method: POST)
+3. Register the document
+4. Create a Data Flow:
+   - First activity: File CP (Read)
+   - Document: File content
+   - Optional: Mapping (if transformation needed)
+   - Last activity: API CP (POST call)
+5. Activate the data flow
+6. Trigger: File arrives at configured location
+
+---
+
+### Dataflow Exercise 6: API → File
+
+**Objective:** Call an external API to GET data and write it to a file.
+
+**Setup Steps:**
+1. Create an API Connection Point (source API, method: GET)
+2. Create a File Connection Point (target file location)
+3. Register the document
+4. Create a Data Flow:
+   - First activity: API CP (GET call)
+   - Document: API response
+   - Optional: Mapping (transform response format)
+   - Last activity: File CP (Write)
+5. Activate the data flow
+6. Trigger: Schedule or event-based trigger on API CP
+
+---
+
+### Dataflow Exercise 7: API → LN
+
+**Objective:** Fetch data from an external API and load it into LN.
+
+**Setup Steps:**
+1. Create an API Connection Point (external API, method: GET)
+2. Ensure LN Company Connection Point is configured
+3. Register documents (API response format + LN BOD)
+4. Create a Mapping (transform API response → LN Process BOD)
+5. Create a Data Flow:
+   - First activity: API CP (GET)
+   - Document: API response
+   - Mapping: Transform to Process.xxx BOD
+   - Document: Process.xxx
+   - Last activity: LN Company CP
+6. Activate the data flow
+7. Trigger: Schedule or event-based
+
+---
+
+### Dataflow Exercise 8: LN → API
+
+**Objective:** When a Sales Order is created in LN, send it to an external system's API.
+
+**Setup Steps:**
+1. Ensure LN Company Connection Point is configured
+2. Create an API Connection Point (target API, method: POST)
+3. Register documents
+4. Create a Mapping (LN BOD → API request format)
+5. Create a Data Flow:
+   - First activity: LN Company CP
+   - Document: Sync.SalesOrder
+   - Mapping: Transform BOD to API JSON/XML format
+   - Last activity: API CP (POST)
+6. Activate the data flow
+7. Trigger: Publish Sync.SalesOrder from LN
+
+---
+
+### Dataflow Exercise 9: LN → Workflow
+
+**Objective:** When a Purchase Order exceeds budget, trigger an approval workflow.
+
+**Setup Steps:**
+1. Ensure LN Company Connection Point is configured
+2. Create a Workflow in ION (with required parameters)
+3. Activate the workflow
+4. Create a Data Flow:
+   - First activity: LN Company CP
+   - Document: Sync.PurchaseOrder
+   - Workflow activity: Map BOD fields to workflow parameters
+5. Activate the data flow
+6. Trigger: Publish Sync.PurchaseOrder from LN
+
+---
+
+### Dataflow Exercise 10: File → Workflow
+
+**Objective:** When a claims file is dropped, trigger a validation workflow.
+
+**Setup Steps:**
+1. Create a File Connection Point (source location)
+2. Create a Workflow in ION (with required parameters)
+3. Activate the workflow
+4. Create a Data Flow:
+   - First activity: File CP (Read)
+   - Document: File content
+   - Workflow activity: Map file content to workflow parameters
+5. Activate the data flow
+6. Trigger: Drop file in configured location
+
+---
+
+### Dataflow Exercise 11: Database → Workflow
+
+**Objective:** When new records appear in an external database, trigger a processing workflow.
+
+**Setup Steps:**
+1. Create a Database Connection Point (stored procedure for GET)
+2. Create a Workflow in ION (with required parameters)
+3. Activate the workflow
+4. Create a Data Flow:
+   - First activity: Database CP (Read/GET)
+   - Document: Query results
+   - Workflow activity: Map DB fields to workflow parameters
+5. Activate the data flow
+6. Trigger: Schedule or DB event
+
+---
+
+### Dataflow Exercise 12: IMS → Workflow
+
+**Objective:** When a document is uploaded to IMS (Infor Document Management), trigger an approval workflow.
+
+**Setup Steps:**
+1. Create an IMS Connection Point
+2. Create a Workflow in ION (with required parameters)
+3. Activate the workflow
+4. Create a Data Flow:
+   - First activity: IMS CP
+   - Document: IMS document metadata
+   - Workflow activity: Map IMS attributes to workflow parameters
+5. Activate the data flow
+6. Trigger: Document uploaded to IMS
+
+---
+
+
+---
+
+## Section 5: Stored Procedure Scenarios (Database Connection Point)
+
+**Q39.** List the 6 stored procedure scenarios used with Database Connection Points:
+
+| # | Scenario | Description |
+|---|----------|-------------|
+| 1 | Get Data | Retrieve records based on ID, timestamp, or filters |
+| 2 | Insert Record | Insert a new record into the database |
+| 3 | Update Record | Update an existing record |
+| 4 | Delete Record | Delete a record from the database |
+| 5 | Insert and Get Data | Insert a record and return the inserted data (with auto-generated IDs) |
+| 6 | Update/Delete and Get Data | Modify/remove data and return the affected records |
+
+---
+
+## Section 6: BODs (Business Object Documents)
+
+### BOD Types
+
+**Q40.** What are the two directions of BODs?
+
+**Answer:**
+- **Incoming (ION → LN):** Process, Load, Update
+- **Outgoing (LN → ION):** Sync, List, Show, Acknowledge
+
+---
+
+**Q41.** Explain the BOD naming convention with an example:
+
+**Answer:** Format is `Verb.Noun` — e.g., `Process.SalesOrder`
+- Verb = action (Process, Load, Sync, etc.)
+- Noun = business object (SalesOrder, PurchaseOrder, etc.)
+
+---
+
+### Incoming BOD Verbs
+
+**Q42.** What is the difference between Process and Load BODs?
+
+| | Process BOD | Load BOD |
+|--|-------------|----------|
+| Volume | Low volume | High volume |
+| Acknowledgement | Yes (success or error response) | No acknowledgement |
+| Use when | Need confirmation of success/failure | Bulk data loading |
+
+---
+
+**Q43.** When should you use a Process BOD vs a Load BOD?
+
+**Answer:**
+- **Process BOD:** When you need acknowledgement (success/error), low volume transactions, when response/confirmation is needed
+- **Load BOD:** High volume data loads, no acknowledgement needed, bulk operations
+
+---
+
+**Q44.** For external API data that needs to update LN with a response sent back, which BOD type should you use?
+
+**Answer:** Process BOD — because you need the acknowledgement (response) back to confirm success or report errors.
+
+---
+
+### BOD Actions
+
+**Q45.** Match the BOD actions to their meaning:
+
+| Action | Meaning |
+|--------|---------|
+| Add / Create | Create a new record (for incoming BODs) |
+| Change / Replace | Update an existing record in LN |
+| Delete | Delete the record |
+
+---
+
+### Outgoing BODs
+
+**Q46.** When does LN publish a Sync BOD?
+
+**Answer:** When data changes in LN (create, update, delete) and BOD publishing is configured for that business object. Sync BODs carry the current state of the business object.
+
+---
+
+## Section 7: Infor OS Architecture & Integration Concepts
+
+### Basic Architecture
+
+**Q47.** Draw the integration architecture for these scenarios:
+
+**Scenario 1: LN → PayPal**
+```
+LN → ION (Infor OS) → API Gateway → PayPal APIs → PayPal
+```
+
+**Scenario 2: PayPal → Salesforce (through Infor OS)**
+```
+PayPal → API Gateway (Infor OS) → ION Data Flow → Mapping → API Gateway → Salesforce
+```
+
+**Scenario 3: LN → SAP / LN → Oracle**
+```
+LN → ION (BOD) → Data Flow → Mapping → Connection Point → SAP/Oracle
+```
+
+---
+
+### Connection Point Setup
+
+**Q48.** List all types of Connection Points in Infor OS:
+
+| Type | Use |
+|------|-----|
+| Company (LN) | Connect to LN application |
+| File | Read/write files (CSV, XML, JSON) |
+| Database | Connect to external databases via stored procedures |
+| IMS | Infor Document Management |
+| API | External API calls |
+
+---
+
+**Q49.** What are the basic setup steps before creating any data flow?
+
+**Answer:**
+1. Company CP should be set up
+2. File CP, Database CP, IMS CP configured as needed
+3. Document you are trying to send must be added under Documents
+4. Data flows work on trigger basis (trigger the connection point)
+
+---
+
+### Alerts
+
+**Q50.** What are the three common scenarios where alerts are used?
+
+**Answer:**
+1. **Errors** — notify when something fails
+2. **Workflow status** — notify on workflow state changes
+3. **Handling Acknowledgements** — notify on BOD acknowledgement (success/failure)
+
+---
+
+## Section 8: API Flow Scenarios
+
+### Multi-Step API Flow
+
+**Q51.** Explain this real-world API flow scenario:
+
+**Scenario: Ride-sharing payment (like Uber)**
+
+```
+Sales Order Created
+  → Call Token API (get auth token)
+    → Call Order API (create the order)
+      → Call Authorize API (authorize $60 on card)
+        → Ride ends at $35
+          → Call Capture API (capture $35)
+            → Remaining $25 authorization block is released
+```
+
+**Questions:**
+- Why is the authorize amount ($60) different from capture amount ($35)?
+
+**Answer:** Authorization is a hold/block on the maximum estimated amount. Capture is the actual final charge. The difference is released back to the customer.
+
+---
+
+### API Integration Patterns
+
+**Q52.** What are the two basic API flow patterns?
+
+**Answer:**
+1. **Sending data:** Customer gives you an API URL and you POST data to it
+2. **Getting data:** Customer gives you a GET/POST API URL and you call it to receive data
+
+---
+
+**Q53.** When calling a 3rd party API from Infor, what do you need from the 3rd party customer?
+
+**Answer:**
+1. Endpoint URL
+2. Certificate (if needed) + EC for local hosted APIs
+3. API authorization (API key, OAuth1, OAuth2, Basic, Token)
+4. Method (GET, POST, DELETE, PUT, PATCH)
+5. Request type (XML, JSON, PDF, text) + sample request/response
+
+**What you provide:**
+- Infor Host IP address (for their whitelisting)
+- They must whitelist your server IP, otherwise you'll get server errors
+
+---
+
+## Section 9: Internet vs Intranet
+
+**Q54.** What is the difference between Internet and Intranet in the context of API integrations?
+
+| | Internet | Intranet |
+|--|----------|----------|
+| Scope | Public/global | Organization only |
+| Access | Anyone with connection | Requires proper organizational access |
+| APIs | Publicly exposed endpoints | Not exposed to outside world |
+| Note | Can be called from anywhere | Need VPN or Enterprise Connector for access |
+
+---
+
+**Q55.** If a customer's API is hosted on their intranet (not exposed to the internet), what additional setup is needed in Infor OS?
+
+**Answer:** An Enterprise Connector (EC) needs to be installed and enabled in the API suite to bridge the connection between Infor Cloud and the customer's local network.
+
+---
+
+## Section 10: IDM Document Mapping (XML & JSON)
+
+**Q56.** Explain the purpose of `IonApiRef` in IDM document mapping:
+
+**Answer:** `IonApiRef` maps a BOD XPath value to an IDM attribute. For example:
+```
+"IonApiRef": "SyncItemMaster/DataArea/ItemMaster/ItemMasterHeader/ItemID/ID"
+```
+This maps the Item ID from a SyncItemMaster BOD to an IDM document attribute.
+
+---
+
+**Q57.** In the IDM XML mapping structure, what are the main elements?
+
+| Element | Purpose |
+|---------|---------|
+| `attrs` | Attributes/metadata of the document (mapped from BOD) |
+| `resrs` | Resource/file content (filename + base64 encoded content) |
+| `acl` | Access Control List (e.g., "Public") |
+| `entityName` | IDM document type (e.g., "MDS_GenericDocument") |
+
+---
+
+## Section 11: Python Script in ION (Transformation)
+
+**Q58.** When using Python scripts in ION for data transformation, what is the key input rule?
+
+**Answer:** Python script in ION takes **string** as input. So your JSON or XML inputs will initially be strings. You must convert these strings to either XML or JSON objects before processing.
+
+---
+
+**Q59.** After calling an API from API Gateway and getting a response, describe the transformation workflow:
+
+**Answer:**
+1. Take the response from API Gateway of the required API
+2. Create transformation code (Python script in ION)
+3. Remember: inputs are strings, convert to JSON/XML objects
+4. Transform JSON→XML (copy output XML, create file template in ION)
+5. Or transform JSON→JSON (use AnyDocument format)
+
+---
+
+---
+
+## Answer Key Summary
+
+| Question | Answer |
+|----------|--------|
+| Q1 | B - Document Authorization |
+| Q2 | B - DA blocks data, non-DA doesn't |
+| Q3 | C - DBCM |
+| Q4 | C - Checked-out version discarded |
+| Q5 | C - User editing controlled BO triggers DA, not non-DA |
+| Q6 | A - TDSO, TDPO, TDREQ |
+| Q7 | B - Create → Validate → Deploy → Activate workflow → Activate deployment |
+| Q8 | B - LN_DA_xxxx |
+| Q9 | B - Process BOD for same Noun |
+| Q10 | C - DBCM authorization rules |
+| Q11 | False |
+| Q12 | True |
+| Q13 | True |
+| Q14 | False |
+| Q15 | True |
+| Q20 | B - Sync BOD |
+| Q27 | Workflow output is ignored |
+| Q29 | IONSERVICES/process/application |
+| Q30 | Activation Policy, Data Flow, OCM/DA, Monitor, IDM, API Gateway |
+| Q40 | Incoming: Process/Load/Update; Outgoing: Sync/List/Show/Acknowledge |
+
+---
+
+*End of Exam*
