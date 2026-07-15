@@ -73,17 +73,7 @@ app.get('/api/products', (req, res) => {
   res.json({ count: products.length, data: products });
 });
 
-// 2. Path parameter - GET by ID
-app.get('/api/products/:id', (req, res) => {
-  const id = parseInt(req.params.id);
-  const product = products.find(p => p.id === id);
-  if (!product) {
-    return res.status(404).json({ error: 'Product not found', id });
-  }
-  res.json(product);
-});
-
-// 3. Query parameters - search/filter
+// 2. Query parameters - search/filter (MUST be before :id route)
 app.get('/api/products/search', (req, res) => {
   const { name, category, minPrice, maxPrice, inStock } = req.query;
   let results = [...products];
@@ -99,6 +89,16 @@ app.get('/api/products/search', (req, res) => {
     count: results.length,
     data: results,
   });
+});
+
+// 3. Path parameter - GET by ID
+app.get('/api/products/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  const product = products.find(p => p.id === id);
+  if (!product) {
+    return res.status(404).json({ error: 'Product not found', id });
+  }
+  res.json(product);
 });
 
 // 4. GET all users
