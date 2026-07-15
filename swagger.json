@@ -387,6 +387,131 @@
           "default": { "description": "Returns the requested status code" }
         }
       }
+    },
+    "/api/files/upload": {
+      "post": {
+        "summary": "Upload a single file",
+        "tags": ["File Transfer"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": ["file"],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "File to upload (max 5MB)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "File uploaded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "file": { "$ref": "#/components/schemas/FileInfo" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "No file uploaded" }
+        }
+      }
+    },
+    "/api/files/upload-multiple": {
+      "post": {
+        "summary": "Upload multiple files (max 5)",
+        "tags": ["File Transfer"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": ["files"],
+                "properties": {
+                  "files": {
+                    "type": "array",
+                    "items": { "type": "string", "format": "binary" },
+                    "description": "Up to 5 files (max 5MB each)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Files uploaded successfully" },
+          "400": { "description": "No files uploaded" }
+        }
+      }
+    },
+    "/api/files": {
+      "get": {
+        "summary": "List all uploaded files",
+        "tags": ["File Transfer"],
+        "responses": {
+          "200": {
+            "description": "List of uploaded files",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "count": { "type": "integer" },
+                    "files": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string", "example": "1784106518330-test.txt" },
+                          "size": { "type": "integer", "example": 25 },
+                          "uploadedAt": { "type": "string", "format": "date-time" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/files/{id}": {
+      "get": {
+        "summary": "Download a file by ID",
+        "tags": ["File Transfer"],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" }, "description": "File ID (returned from upload or list)" }
+        ],
+        "responses": {
+          "200": { "description": "File download (binary content)" },
+          "404": { "description": "File not found" }
+        }
+      },
+      "delete": {
+        "summary": "Delete a file",
+        "tags": ["File Transfer"],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" }, "description": "File ID to delete" }
+        ],
+        "responses": {
+          "200": { "description": "File deleted" },
+          "404": { "description": "File not found" }
+        }
+      }
     }
   },
   "components": {
@@ -408,6 +533,16 @@
           "name": { "type": "string", "example": "Alice Johnson" },
           "email": { "type": "string", "example": "alice@example.com" },
           "role": { "type": "string", "enum": ["admin", "user"], "example": "admin" }
+        }
+      },
+      "FileInfo": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "example": "1784106518330-report.pdf" },
+          "originalName": { "type": "string", "example": "report.pdf" },
+          "size": { "type": "integer", "example": 25000 },
+          "mimeType": { "type": "string", "example": "application/pdf" },
+          "uploadedAt": { "type": "string", "format": "date-time" }
         }
       }
     },
