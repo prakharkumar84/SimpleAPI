@@ -58,7 +58,14 @@ app.get('/', (req, res) => {
       ],
       PUT: ['PUT /api/products/:id (JSON body)'],
       PATCH: ['PATCH /api/products/:id (JSON body)'],
-      DELETE: ['DELETE /api/products/:id'],
+      DELETE: ['DELETE /api/products/:id', 'DELETE /api/files/:id'],
+      FILES: [
+        'POST /api/files/upload (multipart form, field: "file")',
+        'POST /api/files/upload-multiple (multipart form, field: "files", max 5)',
+        'GET /api/files (list all uploaded files)',
+        'GET /api/files/:id (download a file)',
+        'DELETE /api/files/:id (delete a file)',
+      ],
     },
   });
 });
@@ -330,6 +337,81 @@ app.get('/api/status/:code', (req, res) => {
     return res.status(400).json({ error: 'Status code must be between 100-599' });
   }
   res.status(code).json({ statusCode: code, message: `You requested status ${code}` });
+});
+
+// ============================================================
+// FILE TRANSFER APIs (SFTP-like over HTTP)
+// ============================================================
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadDir),
+  filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname),
+});
+const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } }); // 5MB max
+
+// 19. Upload a file
+app.post('/api/files/upload', upload.single('file'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded. Use form field name: "file"' });
+  }
+  res.status(201).json({
+    message: 'File uploaded successfully',
+    file: {
+      id: req.file.filename,
+      originalName: req.file.originalname,
+      size: req.file.size,
+      mimeType: req.file.mimetype,
+      uploadedAt: new Date().toISOString(),
+    },
+  });
+});
+
+// 20. List all uploaded files
+app.get('/api/files', (req, res) => {
+  const files = fs.readdirSync(uploadDir).map(name => {
+    const stats = fs.statSync(path.join(uploadDir, name));
+    return { id: name, size: stats.size, uploadedAt: stats.mtime.toISOString() };
+  });
+  res.json({ count: files.length, files });
+});
+
+// 21. Download a file by ID
+app.get('/api/files/:id', (req, res) => {
+  const filePath = path.join(uploadDir, req.params.id);
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ error: 'File not found', id: req.params.id });
+  }
+  res.download(filePath);
+});
+
+// 22. Delete a file
+app.delete('/api/files/:id', (req, res) => {
+  const filePath = path.join(uploadDir, req.params.id);
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ error: 'File not found', id: req.params.id });
+  }
+  fs.unlinkSync(filePath);
+  res.json({ message: 'File deleted', id: req.params.id });
+});
+
+// 23. Upload multiple files
+app.post('/api/files/upload-multiple', upload.array('files', 5), (req, res) => {
+  if (!req.files || req.files.length === 0) {
+    return res.status(400).json({ error: 'No files uploaded. Use form field name: "files"' });
+  }
+  const uploaded = req.files.map(f => ({
+    id: f.filename,
+    originalName: f.originalname,
+    size: f.size,
+    mimeType: f.mimetype,
+  }));
+  res.status(201).json({ message: `${uploaded.length} files uploaded`, files: uploaded });
 });
 
 // ============================================================
